@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Services</title>
+ <link rel="stylesheet"  href="{{ url_for('static', filename='styling.css')}}">
+</head>
+<body>
+    <h1>Health Services</h1>
+    <form method="POST" action="{{ url_for('health') }}">
+        <label for="city">Enter your city:</label>
+        <input type="text" id="city" name="city" required>
+        <br>
+        <label for="latitude">Enter your current latitude:</label>
+        <input type="text" id="latitude" name="latitude" required>
+        <br>
+        <label for="longitude">Enter your current longitude:</label>
+        <input type="text" id="longitude" name="longitude" required>
+        <br>
+        <input type="submit" value="Find Nearest Hospitals">
+    </form>
+
+    {% if hospitals %}
+        <h2>Nearest Hospitals:</h2>
+        <ul>
+            {% for hospital, distance in hospitals %}
+                <li>{{ hospital }} - {{ distance }} miles away</li>
+            {% endfor %}
+        </ul>
+    {% elif error %}
+        <p>{{ error }}</p>
+    {% endif %}
+</body>
+</html>
+
+
+
+
+
+
+

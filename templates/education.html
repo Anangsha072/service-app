@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Education Services</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styling.css') }}">
+</head>
+<body>
+    <h1>Education Services</h1>
+    <form method="POST" action="{{ url_for('education') }}">
+        <label for="city">Select your city:</label>
+        <input type="text" id="city" name="city" required>
+        <input type="submit" value="Get Education Services">
+    </form>
+
+    {% if education_info %}
+        <h2>School Details and Admission Windows:</h2>
+        <ul>
+            {% for school in education_info.schools %}
+                <li>{{ school.name }} - Admission Window: {{ school.admission_window }} - Fee Structure: {{ school.fee_structure }}</li>
+            {% endfor %}
+        </ul>
+
+        <h2>Second Hand / Reusable Learning Materials:</h2>
+        <ul>
+            {% for material in education_info.second_hand_materials %}
+                <li>{{ material.item }} - Price: {{ material.price }}</li>
+            {% endfor %}
+        </ul>
+
+        <h2>Nearest Tuition Centers:</h2>
+        <ul>
+            {% for tuition in education_info.tuition_centers %}
+                <li>Subject: {{ tuition.subject }} - Center: {{ tuition.center_name }} - Teacher: {{ tuition.teacher }}</li>
+            {% endfor %}
+        </ul>
+
+        <h2>Details on Arts, Music, Sports, and Cultural Activity Centers:</h2>
+        <ul>
+            {% for activity in education_info.activity_centers %}
+                <li>Type: {{ activity.type }} - Center: {{ activity.center_name }}</li>
+            {% endfor %}
+        </ul>
+
+        <h2>Industry Training and Job Aid Centers:</h2>
+        <ul>
+            {% for training in education_info.training_centers %}
+                <li>{{ training.name }}</li>
+            {% endfor %}
+        </ul>
+    {% elif error %}
+        <p>{{ error }}</p>
+    {% endif %}
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
