@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Healthcare Services</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Healthcare Services</h1>
+        <div class="row mt-4">
+            <!-- Login Form -->
+            <div class="col-md-6">
+                <h3>Login</h3>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email address</label>
+                        <input type="email" class="form-control" id="loginEmail" placeholder="Enter email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" class="form-control" id="loginPassword" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+            </div>
+            <!-- Registration Form -->
+            <div class="col-md-6">
+                <h3>Register</h3>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerEmail">Email address</label>
+                        <input type="email" class="form-control" id="registerEmail" placeholder="Enter email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Password</label>
+                        <input type="password" class="form-control" id="registerPassword" placeholder="Password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerRole">Role</label>
+                        <select class="form-control" id="registerRole" required>
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </form>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <!-- Search Form -->
+            <div class="col-md-12">
+                <h3>Search Healthcare Services</h3>
+                <form id="searchForm">
+                    <div class="form-group">
+                        <label for="serviceType">Service Type</label>
+                        <select class="form-control" id="serviceType" required>
+                            <option value="hospital">Hospital</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="elder_care">Elder Care</option>
+                            <option value="nurse_service">Nurse Service</option>
+                            <option value="diagnostic_center">Diagnostic Center</option>
+                            <option value="emergency">Emergency Services</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location (Latitude,Longitude)</label>
+                        <input type="text" class="form-control" id="location" placeholder="Enter location" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+                <div id="searchResults" class="mt-4"></div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#loginForm').on('submit', function(e) {
+                e.preventDefault();
+                const email = $('#loginEmail').val();
+                const password = $('#loginPassword').val();
+                axios.post('/login', { email, password })
+                    .then(response => {
+                        alert(response.data.message);
+                    })
+                    .catch(error => {
+                        alert(error.response.data.error);
+                    });
+            });
+    
+            $('#registerForm').on('submit', function(e) {
+                e.preventDefault();
+                const email = $('#registerEmail').val();
+                const password = $('#registerPassword').val();
+                const role = $('#registerRole').val();
+                axios.post('/register', { email, password, role })
+                    .then(response => {
+                        alert(response.data.message);
+                    })
+                    .catch(error => {
+                        alert(error.response.data.error);
+                    });
+            });
+    
+            $('#searchForm').on('submit', function(e) {
+                e.preventDefault();
+                const type = $('#serviceType').val();
+                const location = $('#location').val();
+                axios.get('/search', { params: { type, location } })
+                    .then(response => {
+                        const results = response.data;
+                        let resultsHTML = '<ul class="list-group">';
+                        results.forEach(result => {
+                            resultsHTML += `
+                                <li class="list-group-item">
+                                    <strong>${result.tags.name || 'Unnamed'}</strong><br>
+                                    Latitude: ${result.lat}, Longitude: ${result.lon}<br>
+                                    ${result.tags.amenity ? `Amenity: ${result.tags.amenity}` : ''}
+                                    ${result.doctors ? `<br><strong>Doctors:</strong><ul>${result.doctors.map(doc => `<li>${doc.name} (${doc.specialization})</li>`).join('')}</ul>` : ''}
+                                </li>
+                            `;
+                        });
+                        resultsHTML += '</ul>';
+                        $('#searchResults').html(resultsHTML);
+                    })
+                    .catch(error => {
+                        alert(error.response.data.error);
+                    });
+            });
+        });
+    </script>
+    
+    
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
