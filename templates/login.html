@@ -4,23 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styling.css') }}">
 </head>
 <body>
-    <h1>Login</h1>
-    <form action="{{ url_for('login') }}" method="post">
-        <label for="username">Username:</label><br>
-        <input type="text" id="username" name="username" required><br>
-        <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password" required><br>
-        <input type="submit" value="Login">
-        {% if error %}
-        <p style="color:red;">{{ error }}</p>
-        {% endif %}
+    <h2>Login</h2>
+    <form method="POST" action="{{ url_for('login') }}">
+        <p>
+            <label for="email">Email</label><br>
+            <input type="email" id="email" name="email" size="30" required><br>
+        </p>
+        <p>
+            <label for="password">Password</label><br>
+            <input type="password" id="password" name="password" size="30" required><br>
+        </p>
+        <p><input type="submit" value="Login"></p>
     </form>
-    <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
 </body>
 </html>
+
+
+
 
 
 
