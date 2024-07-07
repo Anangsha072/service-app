@@ -13,7 +13,7 @@ This project is a Flask-based web application for managing healthcare services.
 1. Clone the repository:
     ```sh
     git clone https://github.com/Anangsha072/service-app.git
-    cd your-repository
+    cd service-app
     ```
 
 2. Create a virtual environment and install dependencies:
