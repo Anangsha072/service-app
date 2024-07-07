@@ -31,7 +31,17 @@ This project is a Flask-based web application for managing healthcare services.
 4. Run the application:
     ```sh
     flask run
+
     ```
+    
+## Usage
+To access the application, open your web browser and navigate to `http://127.0.0.1:5000`.
+
+### HTML Templates
+- `index.html`: Main page for user interactions like login, registration, and service search.
+
+
+
 
 ## Configuration
 The application uses environment variables for configuration. Create a `.env` file in the root directory with the following content:
