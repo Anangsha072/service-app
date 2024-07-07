@@ -35,7 +35,7 @@ This project is a Flask-based web application for managing healthcare services.
     ```
     
 ## Usage
-To access the application, open your web browser and navigate to `http://127.0.0.1:5000`.
+To access the application, open your web browser and navigate to `http://127.0.0.1:5000` (accessible in chromes only)
 
 ### HTML Templates
 - `index.html`: Main page for user interactions like login, registration, and service search.
