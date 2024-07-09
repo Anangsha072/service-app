@@ -5,6 +5,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
 import requests
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -12,8 +16,11 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your_secret_key')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///site.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Initialize SQLAlchemy
+# Initialize extensions
 db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
+migrate = Migrate(app, db)
+CORS(app)
 
 # Define User model
 class User(db.Model):
@@ -21,7 +28,7 @@ class User(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(50), nullable=False)
-    
+
 # Define Hospital model
 class Hospital(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -32,7 +39,7 @@ class Hospital(db.Model):
     services_offered = db.Column(db.String(200), nullable=True)
     insurance_coverage = db.Column(db.String(200), nullable=True)
     cost_details = db.Column(db.String(200), nullable=True)
-    
+
 # Define Doctor model
 class Doctor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -44,11 +51,6 @@ class Doctor(db.Model):
     rating = db.Column(db.Float, nullable=False)
     availability = db.Column(db.String(100), nullable=True)
     cost_details = db.Column(db.String(200), nullable=True)
-
-# Initialize Bcrypt, Migrate, and CORS
-bcrypt = Bcrypt(app)
-migrate = Migrate(app, db)
-CORS(app)
 
 # Sample data creation
 def create_sample_data():
@@ -72,8 +74,6 @@ def create_sample_data():
 @app.route('/')
 def index():
     return render_template('index.html')
-
-
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -100,57 +100,6 @@ def login():
     if user and bcrypt.check_password_hash(user.password, password):
         return jsonify({'message': 'Login successful', 'user': {'email': user.email, 'role': user.role}}), 200
     return jsonify({'error': 'Invalid email or password'}), 401
-@app.route('/hospital/<int:hospital_id>', methods=['GET'])
-def get_hospital_details(hospital_id):
-    # Example: Fetch hospital details from Google Maps Places API
-    api_key = 'your_api_key_here'  # Replace with your actual API key
-    url = f'https://maps.googleapis.com/maps/api/place/details/json?place_id={hospital_id}&fields=name,formatted_address,international_phone_number,rating,reviews,photos&type=hospital&key={api_key}'
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            data = response.json().get('result', {})
-            hospital_name = data.get('name', 'Unknown')
-            hospital_address = data.get('formatted_address', 'Unknown')
-            hospital_phone = data.get('international_phone_number', 'Unknown')
-            hospital_rating = data.get('rating', 0.0)
-            hospital_reviews = data.get('reviews', [])
-            hospital_photos = [photo['photo_reference'] for photo in data.get('photos', [])]
-            insurance_coverage = 'Government and Private Insurance'  # Assuming hardcoded for example
-            cost_details = 'Varies by service'  # Assuming hardcoded for example
-            
-            return jsonify({
-                'id': hospital_id,
-                'name': hospital_name,
-                'address': hospital_address,
-                'phone': hospital_phone,
-                'rating': hospital_rating,
-                'reviews': hospital_reviews,
-                'photos': hospital_photos,
-                'insurance_coverage': insurance_coverage,
-                'cost_details': cost_details
-            })
-        else:
-            return jsonify({'error': 'Failed to fetch hospital details'}), response.status_code
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': f'Error fetching hospital details: {e}'}), 500
-
-@app.route('/doctor/<int:doctor_id>', methods=['GET'])
-def get_doctor_details(doctor_id):
-    # Example: Fetch doctor details from an internal database or another API if applicable
-    doctor = Doctor.query.get(doctor_id)
-    if doctor:
-        return jsonify({
-            'id': doctor.id,
-            'name': doctor.name,
-            'specialization': doctor.specialization,
-            'hospital': doctor.hospital.name,
-            'contact_info': doctor.contact_info,
-            'rating': doctor.rating,
-            'availability': doctor.availability,
-            'cost_details': doctor.cost_details
-        })
-    else:
-        return jsonify({'error': 'Doctor not found'}), 404
 
 @app.route('/search', methods=['GET'])
 def search():
@@ -202,12 +151,25 @@ def search():
 
     results = []
     for place in places:
-        results.append({
+        hospital_data = {
             'id': place.get('id'),
             'lat': place.get('lat'),
             'lon': place.get('lon'),
             'tags': place.get('tags', {})
-        })
+        }
+        
+        if service_type == 'hospital':
+            hospital_name = place.get('tags', {}).get('name')
+            print(f"Found hospital name: {hospital_name}")  # Debug statement
+            if hospital_name:
+                hospital = Hospital.query.filter_by(name=hospital_name).first()
+                if hospital:
+                    doctors = Doctor.query.filter_by(hospital_id=hospital.id).all()
+                    doctor_details = [{'name': doc.name, 'specialization': doc.specialization} for doc in doctors]
+                    hospital_data['doctors'] = doctor_details
+                    print(f"Doctors for {hospital_name}: {doctor_details}")  # Debug statement
+
+        results.append(hospital_data)
 
     return jsonify(results)
 
@@ -215,4 +177,4 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
         create_sample_data()  # Optional: Populate with sample data
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

@@ -1,0 +1,22 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "app.py",
+        "use": "@vercel/python"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "app.py"
+      }
+    ],
+    "env": {
+      "FLASK_ENV": "production",
+      "SECRET_KEY": "your_secret_key",
+      "DATABASE_URL": "sqlite:///site.db"
+    }
+  }
+  
+  
